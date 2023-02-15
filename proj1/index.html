@@ -1,7 +1,479 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 1 here
-	</body>
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Computer Graphics</title>
+
+	<meta name="author" content="Jon Barron">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  
+	<link rel="stylesheet" type="text/css" href="../stylesheet.css">
+	  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+  
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+
+<body>
+	
+  <table style="width:100%;max-width:800px;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+    <tr style="padding:0px">
+      <td style="padding:0px">
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+          <tr style="padding:0px">
+            <td style="padding:2.5%;width:63%;vertical-align:middle">
+              <p style="text-align:center">
+                <name>Project 1: Rasterizer</name>
+              </p>
+              <p>
+				<p style="text-align:center">
+				<strong>Tianzhe Chu</strong>
+				<br>
+				<em>chutzh@berkeley.edu</em>
+				</p>
+              </p>
+            </td>
+            <td style="padding:2.5%;width:40%;max-width:40%">
+              <a href="images/lion.png"><img style="width:100%;max-width:100%" alt="profile photo" src="../images/homepage.png" class="hoverZoomLink"></a>
+			</td>
+          </tr>
+        </tbody></table>
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+          <heading>Tasks</heading>
+          <tr>
+            <td style="padding:20px;width:25%;vertical-align:middle">
+              <img src="images/task2_s1 copy.png" alt="PontTuset" width="300" style="border-style: none">
+			  <figcaption>Fig for Task 1: Drawing</figcaption>
+			</td>
+            <td width="75%" valign="middle">
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 1: Drawing Single-Color Triangles</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Interpretation</strong>
+              <p></p>
+
+              <p>
+				The first task is to implementation a function to draw signle-color triangles. 
+				The given triangle is defined by three vertices, and the color is defined by the RGB value.
+				To draw the triangle, I first calculate the bounding box of the triangle, and then iterate through all the pixels in the bounding box, where true pixels should be in the center of 4 pairs of indices, i.e. (x+0.5, y+0.5).
+				The key point of this task is to determine whether a pixel is inside the triangle.
+				I use the cross product to achieve this goal, i.e. to determine if P is inside triangle ABC,
+				I will check the cross product of (AB, AP), (BC, BP), (CA, CP). If the three products have the same sign(all non-negative or non-positive), then P is inside the triangle.
+			  </p>
+			  <p></p>
+              <strong>No worse?</strong>
+			  <p>
+				My implementation do the same thing as "checking each sample within the bounding box of the triangle" except
+				some optimizations which will be discussed later. So my implementation is no worse than the given one.
+			  </p>
+			  <p></p>
+              <strong>Extra Credit</strong>
+			  <p>
+				To improve the performance, I use loop reordering and multi-thread via OpenMP to speed up the function.
+				Since the memory of the sample matrix is organized in row-major order, I reorder the loop to make the memory access more continuous for more cache hits.
+				Also, I use OpenMP to parallelize the loop, which can speed up the function.
+			  </p>
+            </td>
+          </tr>
+		  <tr>
+			<td style="padding:20px;width:25%;vertical-align:middle">
+				<img src="images/table-chart.png" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 1: Optimized: use reordered loop and multi thread. The recorded times are average of 5 runs each.</figcaption>  
+			</td>
+			</tr>
+
+		  <p></p>
+		  <p></p>
+		  <p></p>
+		  <tr>
+			<td style="padding:20px;width:25%;vertical-align:middle">
+				<img src="images/task2_sup.png" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 2: Supersampling</figcaption>  
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 2: Antialiasing by Supersampling</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Interpretation</strong>
+              <p></p>
+              <p>
+				The key idea of supersampling is to sample more than one location within each pixel, and then calculate the average samples
+				as the true color of that pixel. Supsersampling is useful in antialiasing because it works as a convolution filter within one pixel
+				and smooths the edges of the triangle. Hence, in the signal processing view, frequencies higher than Nyquist frequency would be filtered out.
+			  </p>
+			  <p></p>
+              <strong>Pipeline</strong>
+			  <p>
+				My implementation includes the following steps:
+			  </p>
+			  	<p>
+					1. Resizing the sample buffer: Insdead of (width times height), I resize it to (width times height times sample_rate) in all related functions to store supersampled data.
+				</p>
+				<p>
+					2. Modifying the rasterizing function in task 1: I add two more inner loops, each with length \(\sqrt{\text{sampling rate}} \). These two loops
+					traverse through the supersampled pixes within a pixel by accessing the index: 
+					\( x = i + (ii + 0.5)/\sqrt{\text{sampling rate}} \)
+					\( y = j + (jj + 0.5)/\sqrt{\text{sampling rate}} \)
+					,where i, j are outer loops, ii, jj are inner loops.
+
+				</p>
+				<p>
+					3. Modifying the <code>fill_pixel</code> function: To match the changed size of sample buffer.
+				</p>
+				<p>
+					4. Modifying the <code>resolve_to_framebuffer</code> function: To calculate the average color of each pixel and store them in to framebuffer.
+				</p>
+			  <p></p>
+			  <strong>Images and Observations</strong>
+			  <p>
+				  The following images are results of <code>basic/test4.svg</code> with sample rate 1, 4, 16(left to right).
+				  In the pink skinny corner, as is shown in the pixel inspector, 
+				  the shape is more jaggy and separated in smaller sample rate, which is caused by the aliasing effect. As the sample rate 
+				  increases, the shape becomes smoother and more continuous. This is because supersampling method
+				  samples different locations within a pixel in higher resolution so that it can approximate the value of
+				  those otherwise "white" pixels.
+
+			  </p>
+			  <div align="middle">
+				<table style="width=100%">
+				  <tr>
+					<td>
+					  <img src="images/task2_s1 copy.png" align="middle" width="250px"/>
+					  <figcaption align="middle">Fig for Task 2: Sample rate 1</figcaption>
+					</td>
+					<td>
+					  <img src="images/task2_s4 copy.png"" align="middle" width="250px"/>
+					  <figcaption align="middle">Fig for Task 2: Sample rate 4</figcaption>
+					</td>
+					<td>
+						<img src="images/task2_s16 copy.png"" align="middle" width="250px"/>
+						<figcaption align="middle">Fig for Task 2: Sample rate 16</figcaption>
+					  </td>
+				  </tr>
+
+				</table>
+			  </div>
+            </td>
+          </tr>
+
+			<!-- <tr>
+				<p>
+				<td style="padding:0px;width:0%;vertical-align:text-bottom">
+				  <img src="images/task2_s4 copy.png" alt="PontTuset" width="200" style="border-style: none">
+				  <figcaption>Fig for Task 2: Sample rate 4</figcaption>
+				</td>
+				</p>
+			</tr>
+			<tr>
+				<p>
+				<td style="padding:1px;width:0%;vertical-align:text-bottom">
+				  <img src="images/task2_s16 copy.png" alt="PontTuset" width="200" style="border-style: none">
+			<figcaption>Fig for Task 2: Sample rate 16</figcaption>
+				</td>
+				</p>
+			</tr> -->
+			<!-- </div> -->
+		
+		
+		</tr>
+		<tr>
+			<td style="padding:20px;width:25%;vertical-align:middle">
+				<img src="images/task3.png" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 3: Cubeman</figcaption>
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 3: Transform</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Interpretation</strong>
+              <p></p>
+              <p>
+				The left picture is my cubeman with a waving hand posture in a lazy style.
+				I rotate the head by 15 degrees, left arm by 15 and 90 repectively(2 parts), right arm by 90, bottom right leg by 25.
+				I also apply a fancy pink color on it, plus lengthening the torso. Since rotation is applied on the center of each shape,
+				I change the location of some shapes by <code>translate</code> function.
+			  </p>
+			  <p></p>
+
+            </td>
+          </tr>
+
+		  <tr>
+			<td style="padding:20px;width:25%;vertical-align:middle">
+				<img src="images/task4_tri.png" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 4: Barycentric coordinates</figcaption>
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 4: Barycentric Coordinates</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Interpretation</strong>
+              <p></p>
+              <p>
+				Barycentric coordinates is a special coordinate system that is commonly used in 
+				triangle rasterization, i.e. deciding if a point is inside the triangle, evaluating 
+				the color of the point, etc. The idea is to represent any point in the triangle plane by
+				a linear combination of the three vertices of the triangle. 
+				These three coefficients are called barycentric coordinates, which are calculated by
+				the propotion of areas, i.e. \(\alpha = S(BPC)/S(ABC)\), similarly for the other two. 
+				Remember that the area can be negative if P is outside the triangle. The below function
+				\(V(\cdot)\) can be either location or color value.
+				<p>\(V(P) = \alpha V(A) + \beta V(B) + \gamma V(C)\)</p>
+				<p>\(\alpha + \beta + \gamma = 1 \)</p>
+			  </p>
+			  <p></p>
+
+            </td>
+          </tr>
+		<tr>
+			<p>
+			<td style="padding:20px;width:25%;vertical-align:middle">
+			  <img src="images/task4_circle.png" alt="PontTuset" width="300" style="border-style: none">
+		<figcaption>Fig for Task 4: <code>basic/test7.svg</code></figcaption>
+			</td>
+			</p>
+		</tr>
+		<tr>
+			<td style="padding:20px;width:25%;vertical-align:top">
+				<img src="images/task5_bi.png" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 5: "Pixel sampling" for texture mapping</figcaption>
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 5: "Pixel sampling" for texture mapping</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Interpretation of Pixel Sampling</strong>
+              <p></p>
+              <p>
+				Pixel sampling is a method to map a texture to a surface, mathematically speaking, mapping 
+				a dixcrete vertex from one coordinate system to another.
+			  </p>
+			  <p>
+				Nearest sampling is a naive method, which simply maps the nearest vertex on the texture to the surface.
+				Bilinear sampling is a more sophisticated method, which maps the four nearest vertices on the texture to the surface and
+				calculates the color by linear interpolation.
+			  </p>
+			  <p></p>
+			  <strong>Implementation</strong>
+			  <p>
+				In implementation, the input becomes two sets of vertices, one 
+				representing the triangle on the surface, the other representing the target
+				triangle on the texture. The key point is to calculate 
+				the barycentric coordinates of the mapped triangle, and use them to calculate
+				the target vertex on the texture. 
+				The target texure color is given by the inner function <code>Texture::sample</code>, which
+				includes two sampling methods above.
+
+			  </p>
+			  <p></p>
+			  <strong> Bilinear DEFEATS Nearest</strong>
+			  <p></p>
+			  <p>
+				As is shown in the following figures, expecilly for the case of small sample rate,
+				bilinear sampling is much better than Nearest sampling since it 
+				generate smoother edges for delicate patterns in the center of Berkeley's emblem, 
+				hence allowing the details to be seen clearly.
+			  </p>
+			  	<p>
+					For larger sampling rate, despite supersampling's antialiasing effect, bilinear 
+					sampling still generates less jaggy patterns expecially for lines and gradients of colors.
+				</p>
+			
+				<p></p>
+				<strong>Comments on differences</strong>
+				<p></p>
+				<p>
+					1. Computational cost: Bilinear sampling is more computationally expensive than Nearest sampling. 
+					Hence, nearest sampling might be a better choice for heavy computation tasks such as real time rendering.
+				</p>
+				<p>
+					2. Information loss: When mapping a texture with higher density to a surface with higher sparsity, 
+					bilinear sampling might lose some information of sharpness while nearest sampling might not. 
+				</p>
+				<p>
+					3. Effect of super sampling: When doing supersampling and bilinear sampling together, we are, kind of
+					, doing a two-level convolution, which would result in a more blury image. This phenomenon 
+					is also observed in the figures below, though not that obvious. For nearest sampling, supersampling obviously works.
+				</p>
+				<p>
+					4. Large differences happen: Large differences of these two methods happens
+					on cases with samller sample rate. This is because supersampling has similar "blurring" effect as bilinear sampling,
+					without which there would be a better contrast between the two methods.
+				</p>		
+			  <div align="middle">
+				<table style="width=100%">
+				  <tr>
+					<td>
+					  <img src="images/task4_n1.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 5: Nearest with s.r. 1</figcaption>
+					</td>
+					<td>
+					  <img src="images/task4_b1.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 5: Bilinear with s.r 1</figcaption>
+					</td>
+				  </tr>
+				  <br>
+				  <tr>
+					<td>
+					  <img src="images/task4_n16.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 5: Nearest with s.r. 16</figcaption>
+					</td>
+					<td>
+					  <img src="images/task4_b16.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 5: Bilinear with s.r. 16</figcaption>
+					</td>
+				  </tr>
+				</table>
+			  </div>
+            </td>
+          </tr>
+		  <tr>
+			<td style="padding:20px;width:25%;vertical-align:top">
+				<img src="images/task6_eg.png" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 6: Texture mapping
+				</figcaption>
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 6: "Level sampling" with mipmaps for texture mapping
+				</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Interpretation</strong>
+              <p></p>
+              <p>
+				The idea of level sampling is to downsample the texture to a lower resolution without
+				aliasing, which is achieved by selecting a typical downsampled texture level. This goal 
+				can be achieved by mipmap, which is a set of downsampled textures with different(usually power of 2) resolutions.
+				The pre-processed mipmap levels would be used for the closest needed resolution, thus it's effective in antialiasing. 
+			  </p>
+			  <p></p>
+			  <strong>Implementation</strong>
+			  <p>
+				The key components of level sampling is in the inner function <code>Texture::get_level</code>, which 
+				implement the following equation:
+				\( Level = \log_2(\max (\sqrt{(\frac{du}{dx})^2 + (\frac{dv}{dx})^2}, \sqrt{(\frac{du}{dy})^2 + (\frac{dv}{dy})^2}))\)
+				</p>
+				<p>Since we are processing discrete vertices, the gradients are approximated 
+				by the target vertex and its (vertical and horizontal) neighbours.
+			  </p>
+			  <strong>Tradeoffs</strong>
+			  <p>
+				1. <strong>Speed</strong>: Supersampling with large sample rate is most time-consuming since it requires multiple samples for each pixel. 
+				Level sampling requires computation of gradients, which is equivalent to super sampling with samplerate=4. 
+				Bilinear sampling takes similar time as level sampling since it also requires color of 
+				2 more neighbouring pixels.
+				Nearest sampling is the fastest since it only requires color of the target pixel.
+			  </p>
+			  <p>
+				2. <strong>Memory usage</strong>: Supersampling with large sample rate takes the most memory since
+				 it requires a memory line of size height * width * samplerate.  Level mapping requires 
+				 1/3 more memory than vanilla memory storage of same resolution. (\(\sum_{i = 0}^{\infty}\frac{1}{4^i}=\frac43\))
+				Pixel sampling methods don't require extra storage memory but bilinearing mapping requires 
+				2 more temporary variables for storing color of 2 neighbouring pixels than nearest sampling. 
+			  </p>
+			  <p>
+				3. <strong>Antialiasing power</strong>: Supersampling with large samplerate 
+				does best in antialiasing since it has the least information loss within 
+				each pixel. It's hard to compare level sampling and bilinear sampling. 
+				It might  depend on the quality of the downsampled mipmap levels, if it's perfect,
+				then level mapping does better otherwise bilinear sampling better.
+			  </p>
+			  <strong>Results</strong>
+			  <p>
+				The below figures is the texture mapping result of the coast scene in Hawaii with <code>texmap/test1.svg</code>.
+
+			  </p>
+			  <div align="middle">
+				<table style="width=100%">
+				  <tr>
+					<td>
+					  <img src="images/task6_l0pn.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 6: Level 0 & Nearest sampling</figcaption>
+					</td>
+					<td>
+					  <img src="images/task6_l0pb.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 6: Level 0 & Bilinear sampling</figcaption>
+					</td>
+				  </tr>
+				  <br>
+				  <tr>
+					<td>
+					  <img src="images/task6_lnpn.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 6: Nearest level & Nearest sampling</figcaption>
+					</td>
+					<td>
+					  <img src="images/task6_lnpb.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 6: Nearest level & Bilinear sampling</figcaption>
+					</td>
+				  </tr>
+				</table>
+			  </div>
+
+			  <p></p>
+			  <strong>Extra Credit: Bilinear level</strong>
+			  <p>
+				Bilinear sampling is implemented by using the lerp of the target level and its nearest level by the following code:
+				<pre>
+				<code>
+		if (sp.psm == P_LINEAR){
+			Color c0 = sample_bilinear(sp.p_uv, level0);
+			Color c1 = sample_bilinear(sp.p_uv, level1);
+	
+			return lerp(level - level0, c0, c1);
+			}
+				</code>
+				</pre>
+			  </p>
+			  Since it's an additional blurring filter, it's expected to add extra rendering time but a 
+			  little bit better antialiasing quality as is shown below:
+			  <p style="text-align:center;">
+			  <img src="images/task6_lbpb.png" align="middle" width="400px"/>
+			  <figcaption align="middle">Fig for Task 6: Bilinear level & Bilinear sampling</figcaption>
+			  </p>
+            </td>
+          </tr>
+
+
+
+        </tbody>
+        </table>
+
+
+
+      </td>
+    </tr>
+  </table>
+</body>
+
 </html>
