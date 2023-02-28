@@ -1,7 +1,707 @@
-<html>
-	<head>
-	</head>
-	<body>
-		Project 2 here
-	</body>
+<!DOCTYPE HTML>
+
+<html lang="en">
+
+<head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Computer Graphics</title>
+
+	<meta name="author" content="Jon Barron">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+  
+	<link rel="stylesheet" type="text/css" href="../stylesheet.css">
+	  <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🌐</text></svg>">
+  
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<link href="https://fonts.googleapis.com/css?family=Open+Sans|Source+Sans+Pro" rel="stylesheet">
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+</head>
+
+
+<body>
+	
+  <table style="width:100%;max-width:800px;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+    <tr style="padding:0px">
+      <td style="padding:0px">
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+          <tr style="padding:0px">
+            <td style="padding:2.5%;width:63%;vertical-align:middle">
+              <p style="text-align:center">
+                <name>Project 2: Mesh Edit</name>
+              </p>
+              <p>
+				<p style="text-align:center">
+				<strong>Tianzhe Chu</strong>
+				<br>
+				<em>chutzh@berkeley.edu</em>
+				</p>
+				<p style="text-align:center">
+				<strong>Yinghao Zhang</strong>
+				<br>
+				<em>zhangyinghao@berkeley.edu</em>
+				</p>
+              </p>
+            </td>
+            <td style="padding:2.5%;width:40%;max-width:40%">
+              <img style="width:100%;max-width:100%" alt="profile photo" src="images/icon.jpg" class="hoverZoomLink"></a>
+			</td>
+          </tr>
+        </tbody></table>
+        <table style="width:100%;border:0px;border-spacing:0px;border-collapse:separate;margin-right:auto;margin-left:auto;"><tbody>
+          <heading>Tasks</heading>
+          <tr>
+            <td style="padding:20px;width:25%;vertical-align:top">
+              <img src="images/overview.png" alt="PontTuset" width="300" style="border-style: none">
+			  <figcaption>Fig for Overview: Brave Cow Cow</figcaption>
+			</td>
+            <td width="75%" valign="middle">
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Overview</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Introduction</strong>
+              <p></p>
+
+              <p>
+				In this project, we implement a mesh editor that incoporate several methods related to 
+				Bezier curves, surfaces, and mesh editing. These methods allow us to edit, split and transpose
+				 target triangles and create better 3D objects. More precisely, we first implement 
+				 the de Casteljau subdivision algorithm to evaluate a Bezier curve. Then, we extend it to 
+				 Bezier surfaces. Then, we implement the flipping and splitting methods for edges of triangles.
+				 Finally, we combine these methods and implement loop subdivision upsample the mesh to a high-resolution.
+			  </p>
+            </td>
+          </tr>
+
+
+		  
+		  <!-- ##################### Task 1 #####################-->
+          <tr>
+            <td style="padding:20px;width:25%;vertical-align:top">
+              <img src="images/task1-curve.png" alt="PontTuset" width="300" style="border-style: none">
+			  <figcaption>Fig for Task 1: Curve with 6 control points</figcaption>
+			</td>
+            <td width="75%" valign="middle">
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 1: Bezier Curves with 1D de Casteljau Subdivision</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Interpretation</strong>
+              <p></p>
+
+              <p>
+				De Casteljau subdivision is a recursive algorithm that can be used to evaluate a Bezier curve. 
+				It can be precisely described as follows: 1. Given a set of control points, we can evaluate the 
+				Bezier curve at a parameter value t by linearly interpolating between the control points. 2. We 
+				can repeat this process until only one point is left, which is the point on the curve at parameter t.
+				The detailed implementation is below:
+				<p>
+					\(newPoints.push\_back(lerp(points[i], points[i+1], t))\)
+				</p>
+				<div align="middle">
+					<table style="width=100%">
+					  <tr>
+						<td>
+						  <img src="images/task1-p1.png" align="middle" width="250px"/>
+						  <figcaption align="middle">Fig for Task 1: Default t, step 1</figcaption>
+						</td>
+						<td>
+						  <img src="images/task1-p2.png"" align="middle" width="250px"/>
+						  <figcaption align="middle">Fig for Task 1: Default t, step 2</figcaption>
+						</td>
+						<td>
+							<img src="images/task1-p3.png"" align="middle" width="250px"/>
+							<figcaption align="middle">Fig for Task 1: Default t, step 3</figcaption>
+						  </td>
+					  </tr>
+	
+					</table>
+				  </div>
+				  <div align="middle">
+					<table style="width=100%">
+					  <tr>
+						<td>
+						  <img src="images/task1-p4.png" align="middle" width="250px"/>
+						  <figcaption align="middle">Fig for Task 1: Default t, step 4</figcaption>
+						</td>
+						<td>
+						  <img src="images/task1-p5.png"" align="middle" width="250px"/>
+						  <figcaption align="middle">Fig for Task 1: Default t, step 5</figcaption>
+						</td>
+						<td>
+							<img src="images/task1-t07.png"" align="middle" width="250px"/>
+							<figcaption align="middle">Fig for Task 1: t=0.7 with different shape</figcaption>
+						  </td>
+					  </tr>
+	
+					</table>
+				  </div>
+			  </p>
+            </td>
+          </tr>
+
+		  <p></p>
+		  <p></p>
+		  <p></p>
+
+		  
+		  <!-- ##################### Task 2 #####################-->
+		  <tr>
+			<td style="padding:20px;width:25%;vertical-align:top">
+				<img src="images/task2-intro.png" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 2: Bezier Surfaces</figcaption>  
+			</td>
+			<p>
+					
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 2: Bezier Surfaces with Separable 1D de Casteljau</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Interpretation</strong>
+              <p></p>
+              <p>
+				The de Casteljau algorithm can be extended to Bezier surfaces by multiple parameters for different dimensions,
+				i.e. u and v. The algorithm can be described as follows:
+				<p>
+					1. For each row of control points, we evaluate the Bezier curve using 1D de Casteljau altorithm with parameter u.
+				</p>
+				<p>
+					2. For the newly generated control points, which can be regarded as columns, we apply 1D de Casteljau algorithm again with parameter v.
+				</p>
+
+				In implementation, the <code>evaluateStep</code> function is the same as the one in Task 1. Then, 
+				<code>evaluate1D</code> function should recursively apply <code>evaluateStep</code> function to generate the control points for each row. 
+				Finally, <code>evaluate</code> function will work as a main function for this Task, doing 1D de Casteljau for each row and then for each column with parameters u, v.
+			  </p>
+			  <p></p>
+              
+			  <div align="middle">
+				<table style="width=100%">
+				  <tr>
+					<td>
+					  <img src="images/task2-tea.png" align="middle" width="250px"/>
+					  <figcaption align="middle">Fig for Task 2: Teapot</figcaption>
+					</td>
+				  </tr>
+
+				</table>
+			  </div>
+            </td>
+          </tr>
+
+			<!-- <tr>
+				<p>
+				<td style="padding:0px;width:0%;vertical-align:text-bottom">
+				  <img src="images/task2_s4 copy.png" alt="PontTuset" width="200" style="border-style: none">
+				  <figcaption>Fig for Task 2: Sample rate 4</figcaption>
+				</td>
+				</p>
+			</tr>
+			<tr>
+				<p>
+				<td style="padding:1px;width:0%;vertical-align:text-bottom">
+				  <img src="images/task2_s16 copy.png" alt="PontTuset" width="200" style="border-style: none">
+			<figcaption>Fig for Task 2: Sample rate 16</figcaption>
+				</td>
+				</p>
+			</tr> -->
+			<!-- </div> -->
+		
+		
+		</tr>
+
+
+		
+		<!-- ##################### Task 3 #####################-->
+		<tr>
+			<td style="padding:20px;width:25%;vertical-align:middle">
+				<!-- <img src="images/task3.png" alt="PontTuset" width="300" style="border-style: none"> -->
+				<!-- <figcaption>Fig for Task 3: Cubeman</figcaption> -->
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 3: Area-Weighted Vertex Normals</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Implementation</strong>
+              <p></p>
+              <p>
+				To implement area-weighted vertex normals, we iterate through all the non-boundary faces neighboring the 
+				given vertex, calculate the area, sum them up and then do the normalization. More presicely, we use the following 
+				steps:
+				<p>
+					1. Each halfedge and its twin belongs to a face respectively. We do normalization for each face in step 2.
+				</p>
+				<p>
+					2. In each face, we iterate through all the halfedges and store the vertices. Then, we calculate the area via cross product, do summation and normalization.
+				
+				</p>
+				<p>
+					3. Finally, we add back the normalized area for the given vertex and return the unit result.
+				</p>
+				</p>
+			  <p></p>
+			  <div align="middle">
+				<table style="width=100%">
+				  <tr>
+					<td>
+					  <img src="images/task3-no.png" align="middle" width="250px"/>
+					  <figcaption align="middle">Fig for Task 3: Flat Shading</figcaption>
+					</td>
+					<td>
+					  <img src="images/task3-pong.png" align="middle" width="250px"/>
+					  <figcaption align="middle">Fig for Task 3: Phong Shading</figcaption>
+					</td>
+				  </tr>
+				</table>
+			  </div>
+            </td>
+          </tr>
+
+		  <!-- ##################### Task 4 #####################-->
+		  <tr>
+			<td style="padding:20px;width:25%;vertical-align:top">
+				<img src="images/task4.jpg" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 4: Edge Flip</figcaption>
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 4: Edge Flip</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+              <strong>Implementation</strong>
+              <p></p>
+              <p>
+				The process of edge flip can be interpreted as two sub-processes: 
+				recording all the elements we need as iterators, and building the whole structure using them. 
+
+				Note that we do not need to delete or create any new element, the building Task can be implemented 
+				as just re-assignmenting the pointers in the elements.
+			  </p>
+			  <p>
+				We use two function <code>build_triangle</code> and <code>build_edge</code> to simplifies our code:
+				<li> <code>build_triangle</code> receives three halfedge iterators and a face iterator. It connects the three halfedges through 
+				<code>next()</code> and modifies the <code>face()</code> poniter of the three halfedges to the face and <code>halfedge()</code>
+				pointer of the face to one of the halfedges. </li>
+
+				<li> <code>build_edge</code> receives two halfedges iterators and an edge iterator. It points <code>twin()</code> to 
+				each other and points <code> edge() </code> to the edge and points <code>halfedge()</code> to one of them. </li>
+			  </p>
+			  <p>
+				In edge flip process, we first record all the elements (edges, halfedges, faces, vertices) as iterators. Then 
+				we call the two functions above multiple times to configure all the <code>next, twin, face, edge, halfedge</code> pointers.
+				Then what is left is only some vertex stuff. We modify <code>halfedge()</code> pointers of vertices and <code>vertex()</code> 
+				pointers of halfedges by hand.
+			  </p>
+
+			  <strong>Results</strong>
+			  <p></p>
+
+			  The following two images show the effect of edge flipping.
+
+			  <div align="middle">
+				<table style="width=100%">
+				  <tr>
+					<td>
+					  <img src="images/task4-1.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 4: Before flipping.</figcaption>
+					</td>
+					<td>
+					  <img src="images/task4-2.png" align="middle" width="400px"/>
+					  <figcaption align="middle">Fig for Task 4: After flipping some edges.</figcaption>
+					</td>
+				  </tr>
+				</table>
+			  </div>
+
+			  <strong>Debug process</strong>
+			  <p></p>
+			
+			  The re-pointer of <code>halfedge()</code> of a vertex was omitted at the first place. This caused an error 
+			  in Task 6 when refering to the halfedge of a vertex where the halfedge has been flipped.
+
+			  <p></p>
+
+            </td>
+          </tr>
+
+
+		
+		<!-- ##################### Task 5 #####################-->
+		<tr>
+			<td style="padding:20px;width:25%;vertical-align:top">
+				<img src="images/task5.jpg" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 5: Edge Split</figcaption>
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+                <heading>Task 5: Edge Split</heading>
+				<p></p>
+				<strong>Implementation</strong>
+				<p></p>
+				<p>
+					We still use our two functions:
+					<li> <code>build_triangle</code> receives three halfedge iterators and a face iterator. It connects the three halfedges through 
+					<code>next()</code> and modifies the <code>face()</code> poniter of the three halfedges to the face and <code>halfedge()</code>
+					pointer of the face to one of the halfedges. </li>
+	
+					<li> <code>build_edge</code> receives two halfedges iterators and an edge iterator. It points <code>twin()</code> to 
+					each other and points <code> edge() </code> to the edge and points <code>halfedge()</code> to one of them. </li>
+				</p>
+				<p>
+					Now since we need to add more elements in edge split, we create the needed number of them after the recording step, 
+					and save them as iterators as well. Specifically, 1 vertex, 6 halfedges, 3 edges, and 3 faces are created.
+				</p>
+				<p>
+					So now the process should be: 1. recording all the exsiting elements, 2. creating new elements, including calculating 
+					the position of the new vertex, 3. building the structrue.
+				</p>
+				<p>
+					In step 3, we call the two functions several times to build the four triangles and four edges in the middle, during which 
+					we need to set the parameters of the two functions to both old elements or new elements. 
+				</p>
+				<p>
+					After that, similarly, the remaining vertex stuff are coded by hand.
+				</p>
+
+				<strong>Results</strong>
+				<p></p>
+				The following two images show the effect of edge splitting.
+				<div align="middle">
+					<table style="width=100%">
+					  <tr>
+						<td>
+						  <img src="images/task5-1.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 5: Before splitting.</figcaption>
+						</td>
+						<td>
+						  <img src="images/task5-2.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 5: After splitting some edges.</figcaption>
+						</td>
+					  </tr>
+					</table>
+				</div>
+				
+				The following two images show the mixture of edge flipping and splitting.
+				<div align="middle">
+					<table style="width=100%">
+					  <tr>
+						<td>
+						  <img src="images/task5-3.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 5: Before editing.</figcaption>
+						</td>
+						<td>
+						  <img src="images/task5-4.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 5: After flipping and splitting.</figcaption>
+						</td>
+					  </tr>
+					</table>
+				</div>
+
+				<strong>Debug process</strong>
+				<p></p>
+				<p>
+					Note that the order of parameters to pass to our <code>build_triangle</code> matters. We first put the three edges 
+					in clockwise order, which leads to a face in opposite direction, giving an obvious hole on the surface.
+				</p>
+
+				<strong>Extra Credit</strong>
+				<p>
+					We implemented support for boundary edges. The results are as follows:
+				</p>
+				<div align="middle">
+					<table style="width=100%">
+					  <tr>
+						<td>
+						  <img src="images/task5-ex1.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 5 Extra: The shape of mesh <code>beetle.dae. </code></figcaption>
+						</td>
+						<td>
+						  <img src="images/task5-ex2.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 5 Extra: The boundary where we test our edge split.</figcaption>
+						</td>
+					  </tr>
+					  <tr>
+						<td>
+						  <img src="images/task5-ex3.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 5 Extra: After several boundary edge split.</figcaption>
+						</td>
+					  </tr>
+					</table>
+				</div>
+
+            </td>
+          </tr>
+
+
+
+		  
+		  <!-- ##################### Task 6 #####################-->
+		  <tr>
+			<td style="padding:20px;width:25%;vertical-align:top">
+				<img src="images/task6.jpg" alt="PontTuset" width="300" style="border-style: none">
+				<figcaption>Fig for Task 6: Loop Subdivision for Mesh Upsampling
+				</figcaption>
+			</td>
+			<p>
+
+            <td width="75%" valign="middle">
+
+              <!-- <a href="proj1/index.html" id="revisit"> -->
+                <heading>Task 6: Loop Subdivision for Mesh Upsampling
+				</heading>
+              <!-- </a> -->
+              <br>
+			  <p></p>
+			  <strong>Implementation</strong>
+			  <p></p>
+			  <p>
+				To achieve loop subdivision, we employ the edge flip and edge split introduced in Task 4 and 5. 
+				These operations enable us to divide each triangle into four smaller triangles, which is known as a 4-1 subdivision. 
+				We can obtain a more refined and upsampled mesh. The implementation of this feature involves the following steps:
+			  </p>
+			  <o1>
+				<li>
+					Update the positions of all vertices and midpoints of edges using the algorithm's specified weights. 
+					To update the existing vertices \(p_i\), we use the formula \((1 - n * u) * p_i + u * \sum p_n\) for all \(p_n\) 
+					that are neighboring vertices, where \(u\) is a weight factor. For the edge midpoints \(m_i\), 
+					we use the formula \((3/8) * (A + B) + (1/8) * (C + D)\), where \(A\), \(B\), \(C\), and \(D\) are defined below. 
+					We store the resulting new positions in Vertex::newPosition and Edge::newPosition, respectively. 
+					This step is performed before the actual division to make iterating through vertices and edges easier and clearer.
+					<table style="width=100%">
+						<tr>
+						<td>
+							<img src="images/task6-illus.jpg" align="middle" width="800px"/>
+							<figcaption align="middle">Fig for Task 6: Calculation of new position</figcaption>
+						</td>
+						</tr>
+					</table>
+				</li>
+				<li>
+					We begin by splitting all edges and flipping edges that connect an old vertex with a new vertex. 
+					This process involves iterating through all edges and calling the <code>splitEdge()</code> function. 
+					Once an edge is splitted, we copy the <code>Edge::newPosition</code> to both of the originally existing edges. 
+					Although the original edges are technically split into two "new" edges, 
+					we must not flip them.
+					After labeling the edges, we flip the new blue edges accordingly. 
+					Finally, we need to ensure that we toggle the isNew flag off at some point, 
+					so that we have no new edges when we try to upsample for one more time.
+					<table style="width=100%">
+						<tr>
+						<td>
+							<img src="images/task6-illus2.png" align="middle" width="800px"/>
+							<figcaption align="middle">Fig for Task 6: Splitting each edge and then flipping blue edges linking an old vertex and a new one. </figcaption>
+						</td>
+						</tr>
+					</table>
+				</li>
+				<li>
+					Update vertices positions. The old vertices have their new position saved in its member variable <code>Vertex::newPosition</code>.
+					As for the new ones, we iterate through its edges and find an old edge which saves its new position.
+				</li>
+			  </o1>
+			  <p></p>
+
+			  <strong>Results</strong>
+			  <p></p>
+			  <p>
+				The following four images show different level of subdivision (from no subdivision to 3 times). Note the Task pointed by 
+				the red arrow, where the sharp edge becomes more and more smooth. 
+				This is due to the normalization of the new vertices' positions using their neighboring vertices. 
+				As a result, the new vertices along the edges are an average of the neighboring vertices on the two adjacent faces, 
+				which gives the edges a rounded appearance.
+			  </p>
+			  <table style="width=100%">
+				<tr>
+				<td>
+					<img src="images/task6-1-new.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: No subdivision. </figcaption>
+				</td>
+				<td>
+					<img src="images/task6-2.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: One time of subdivision. </figcaption>
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<img src="images/task6-3.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: Two times of subdivision. </figcaption>
+				</td>
+				<td>
+					<img src="images/task6-4.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: Three times of subdivision. </figcaption>
+				</td>
+				</tr>
+			  </table>
+			  
+			  <strong>Anti-smoothing of edges</strong>
+			  <p></p>
+			  <p>
+				After several subdivisions, the edge of the cube disappear, which is not what we want some times. To solve this, 
+				we propose a mothod of pre-splitting. The image below shows the pre-splitting process and its effects. 
+				One can see that with pre-splitting, the edge is preserved.
+			  </p>
+			  <table style="width=100%">
+				<tr>
+				<td>
+					<img src="images/task6-split.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: How to pre-split. </figcaption>
+				</td>
+				<td>
+					<img src="images/task6-v2.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: The effect under 3 times of subdivision. </figcaption>
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<img src="images/task6-v3.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: The effect under 4 times of subdivision. </figcaption>
+				</td>
+				<td>
+					<img src="images/task6-v4.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: The effect under 5 times of subdivision. </figcaption>
+				</td>
+				</tr>
+			  </table>
+
+			  <p></p>
+			  <strong>Symmetric subdivision</strong>
+			  <p></p>
+			  <p>
+				In addition, we have noticed that the upsampled mesh of <code>cube.dae</code> is not symmetrical. 
+				This is because the cube is initially drawn with only one edge on each face. 
+				Therefore, for each face, the two vertices connected by the edge have a higher degree than those that are not. 
+				Specifically, out of the 8 vertices, one has a degree of 3, three have a degree of 4, three have a degree of 5, 
+				and one has a degree of 6. 
+				The differences in degrees result in significant variations in the new vertex positions, 
+				as we take averages of neighboring vertices during the calculation. 
+				Consequently, as we subdivide for more steps, vertices with fewer degrees will have sharper corners, 
+				Taskicularly the vertex with a degree of 3. 
+			  </p>
+			  <p>
+				The following images show the non-symmetic mesh and the reasons for this.
+			  </p>
+
+			  <table style="width=100%">
+				<tr>
+				<td>
+					<img src="images/task6-sym.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: Non-symmetic mesh upsampled from cube.dae </figcaption>
+				</td>
+				<td>
+					<img src="images/task6-deg3.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: A vertex of degree 3. </figcaption>
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<img src="images/task6-deg6.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: A vertex of degree 6. </figcaption>
+				</td>
+				<td>
+					<img src="images/task6-sharp.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: The vertex of degree 3 is sharper than the others after subdivision. </figcaption>
+				</td>
+				</tr>
+			  </table>
+
+			  <p>
+				To fix this problem, we can ensure that all vertices 
+				have an equal number of degrees from the beginning. 
+				To achieve this, we need to split the edges on each face of the cube, 
+				which will result in each original vertex having a degree of 6. 
+				This will ensure the symmetry of the upsampled mesh. 
+			  </p>
+			  <p>
+				The following images show the method to fix this and the its effects. We can see that the mesh is now symmetric.
+			  </p>
+			  <table style="width=100%">
+				<tr>
+				<td>
+					<img src="images/task6-method.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: pre-split the edge in each surface. </figcaption>
+				</td>
+				<td>
+					<img src="images/task6-symmetric-v1.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: Effects of pre-split, 3 times of subdivision. </figcaption>
+				</td>
+				</tr>
+				<tr>
+				<td>
+					<img src="images/task6-symmetric-v2.png" align="middle" width="400px"/>
+					<figcaption align="middle">Fig for Task 6: Effects of pre-split, 4 times of subdivision.</figcaption>
+				</td>
+				</tr>
+			  </table>
+
+
+			  	<p></p>
+				<strong>Extra Credit</strong>
+				<p>
+					We implemented support for boundary edges. Calculation of new position of boundary vertices is different 
+					from those of inner ones. We use the weights from 
+					<a href="https://www.cs.cmu.edu/afs/cs/academic/class/15462-s14/www/lec_slides/Subdivision.pdf#page=13">slides from CMU 15462</a>,
+					which are, for new vertices, \(v=(1/2)*(A+B)\) where \(A\) and \(B\) are two vertices of this old edge, 
+					and for old vertices, \(v=(1/8)*(A+B)+(3/4)*v\), where \(A\) and \(B\) are the two neighbors of \(v\) on this boundary.
+				</p>
+				<p>
+					We only need to change step 1 to support boundary edges. After this, the results are shown below. One can 
+					see that the boundaries, such as the car lights, become more and more smooth. Also comparing with and without 
+					boundary edge support after two times of subdivision, we show that our improvement enhances the appearance.
+				</p>
+				<div align="middle">
+					<table style="width=100%">
+					  <tr>
+						<td>
+						  <img src="images/task6-ex1.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 6 Extra: Original look of <code>beetle.dae. </code></figcaption>
+						</td>
+						<td>
+						  <img src="images/task6-ex2.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 6 Extra: After one time of subdivision.</figcaption>
+						</td>
+					  </tr>
+					  <tr>
+						<td>
+						  <img src="images/task6-ex3.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 6 Extra: After two times of subdivision.</figcaption>
+						</td>
+						<td>
+						  <img src="images/task6-ex5.png" align="middle" width="400px"/>
+						  <figcaption align="middle">Fig for Task 6 Extra: Without boundary edge support, after two times of subdivision.</figcaption>
+						</td>
+					  </tr>
+					</table>
+				</div>
+
+            </td>
+          </tr>
+
+
+
+        </tbody>
+        </table>
+
+
+
+      </td>
+    </tr>
+  </table>
+</body>
+
 </html>
